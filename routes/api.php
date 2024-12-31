@@ -6,6 +6,13 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\PostController;
+use App\Http\Controllers\MusicController;
+use App\Http\Controllers\LikeController;
+use App\Http\Controllers\CommentsController;
+
+
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -21,6 +28,6 @@ Route::post('/checkpassword',[UserController::class,'checkpassword']);
 Route::put('/updatepassword',[UserController::class,'updatepassword']);
 Route::post('/createpost', [PostController::class, 'store'])->name('createpost');
 Route::get('/displaypost',[PostController::class, 'show'])->name('displaypost');
-
-
 Route::resource('/test', MusicController::class);
+Route::resource('/likes', LikeController::class);
+Route::resource('/comments', CommentsController::class);

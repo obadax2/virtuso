@@ -8,6 +8,7 @@ use App\Models\Post;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
 {
@@ -25,7 +26,7 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-        \Log::info('Request data: ', $request->all());
+        Log::info('Request data: ', $request->all());
         $validatedData = $request->validate([
             'userId' => 'required|integer|exists:users,id',
             'desc' => 'required|string|max:300',
@@ -57,7 +58,7 @@ class PostController extends Controller
             return response()->json(['valid' => 1]);
 
         } catch (\Exception $e) {
-            \Log::error("Error creating post: " . $e->getMessage());
+            Log::error("Error creating post: " . $e->getMessage());
             return response()->json(['error' => 'Internal Server Error'], 500);
         }
     }
@@ -67,7 +68,7 @@ class PostController extends Controller
      */
     public function show(Request $request)
     {
-        \Log::info('DisplayPost request data: ', $request->all());
+        Log::info('DisplayPost request data: ', $request->all());
 
 
         $validatedData = $request->validate([
@@ -82,7 +83,7 @@ class PostController extends Controller
             $userPosts = Post::with('user')->where('user_id', $user->id)->get();
 
 
-            \Log::info('Fetched user posts:', $userPosts->toArray());
+            Log::info('Fetched user posts:', $userPosts->toArray());
 
 
             $formattedPosts = $userPosts->map(function($post) {
@@ -102,7 +103,7 @@ class PostController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Error fetching posts: ', ['error' => $e->getMessage(), 'trace' => $e->getTrace()]);
+            Log::error('Error fetching posts: ', ['error' => $e->getMessage(), 'trace' => $e->getTrace()]);
             return response()->json(['error' => 'Failed to fetch posts'], 500);
         }
     }

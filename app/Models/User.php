@@ -10,25 +10,31 @@ class User extends Authenticatable
     use Notifiable;
 
     protected $fillable = [
-        'name', 
-        'email', 
-        'password', 
+        'name',
+        'email',
+        'password',
         'profile_picture'
     ];
 
     protected $hidden = [
-        'password', 
+        'password',
         'remember_token',
     ];
 
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
- 
-    
-    public function friends() 
+
+
+    public function friends()
     {
         return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id')
         ->select('users.id');
     }
+
+    public function likes()
+{
+    return $this->hasMany(Like::class);
+}
+
 }
