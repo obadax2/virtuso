@@ -150,7 +150,7 @@ public function login(Request $request)
     }
     public function create(Request $request)
     {
-        // Log incoming request data
+        
         \Log::info('Request data: ', $request->all());
     
         $validatedData = $request->validate([
@@ -164,7 +164,7 @@ public function login(Request $request)
             $post = new Post();
             $post->post_desc = $validatedData['desc'];
     
-            // Image handling
+           
             if ($request->hasFile('image')) {
                 $imagePath = $request->file('image')->store('images', 'public');
                 $post->photo = $imagePath; 
@@ -172,7 +172,7 @@ public function login(Request $request)
                 $post->photo = null;
             }
     
-            // Audio handling
+           
             if ($request->hasFile('audio')) {
                 try {
                     $audioPath = $request->file('audio')->store('audios', 'public');
@@ -196,5 +196,45 @@ public function login(Request $request)
             return response()->json(['error' => 'Internal Server Error'], 500);
         }
     }
+    public function display(Request $request)
+    {
+        \Log::info('DisplayPost request data: ', $request->all());
     
+       
+        $validatedData = $request->validate([
+            'userId' => 'required|integer|exists:users,id',
+        ]);
+    
+        try {
+            
+            $user = User::findOrFail($validatedData['userId']);
+    
+           
+            $userPosts = Post::with('user')->where('user_id', $user->id)->get();
+    
+          
+            \Log::info('Fetched user posts:', $userPosts->toArray());
+    
+           
+            $formattedPosts = $userPosts->map(function($post) {
+                return [
+                    'id' => $post->id,
+                    'name' => $post->user ? $post->user->name : 'Unknown User', 
+                 
+                    'image' => $post->photo ? url('storage/' . $post->photo) : null,
+                    'audio' => $post->music ? url('storage/' . $post->music) : null,
+                ];
+            });
+    
+        
+            return response()->json([
+                'valid' => 1,
+                'posts' => $formattedPosts,
+            ]);
+    
+        } catch (\Exception $e) {
+            \Log::error('Error fetching posts: ', ['error' => $e->getMessage(), 'trace' => $e->getTrace()]);
+            return response()->json(['error' => 'Failed to fetch posts'], 500);
+        }
+    }
 }
