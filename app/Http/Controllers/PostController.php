@@ -14,7 +14,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+       
     }
 
     /**
@@ -24,36 +24,36 @@ class PostController extends Controller
     {
         //
         $validatedData = $request->validate([
-            'userId' => 'required|integer|exists:users,id', 
+            'userId' => 'required|integer|exists:users,id',
             'desc' => 'required|string|max:300',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:8126',
             'audio' => 'nullable|file|mimes:mp3,wav,ogg|max:10240',
         ]);
-    
+
         try {
-         
+
             $post = new Post();
             $post->post_desc = $validatedData['desc'];
-            
+
             if ($request->hasFile('image')) {
                 $imagePath = $request->file('image')->store('images', 'public');
-                $post->photo = $imagePath; 
+                $post->photo = $imagePath;
             }
-            
-           
+
+
             if ($request->hasFile('audio')) {
                 $audioPath = $request->file('audio')->store('audios', 'public');
                 $post->music = $audioPath;
             }
-            
-           
+
+
             $post->user_id = $validatedData['userId'];
-            
+
             $post->save();
-    
+
             return response()->json(['valid' => 1]);
         } catch (\Exception $e) {
-            \Log::error("Error creating post: " . $e->getMessage());
+            Log::error("Error creating post: " . $e->getMessage());
             return response()->json(['error' => 'Internal Server Error'], 500);
         }
     }

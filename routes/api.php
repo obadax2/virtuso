@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\MusicController;
 
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
     return $request->user();
@@ -21,3 +22,4 @@ Route::post('/checkpassword',[AuthController::class,'checkpassword']);
 Route::put('/updatepassword',[AuthController::class,'updatepassword']);
 Route::post('/createpost', [AuthController::class, 'create'])->name('createpost');
 
+Route::resource('/test', MusicController::class);
