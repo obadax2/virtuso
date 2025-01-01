@@ -30,7 +30,7 @@ class CommentsController extends Controller
      */
 public function store(Request $request)
 {
-    // Validate the incoming request data
+    
     $validatedData = $request->validate([
         'comment' => 'required|string|max:500',  // Ensure the comment is a string and not too long
         'post_id' => 'required|exists:posts,id', // Validate that the post exists
@@ -52,7 +52,7 @@ public function store(Request $request)
     $comment->save(); // Save the comment to the database
 
     // Return a success message
-    return response()->json(['message' => 'Comment added successfully.'], 201);
+    return response()->json(['message' => 'Comment added successfully.','valid'=>1], 201);
 }
 
 

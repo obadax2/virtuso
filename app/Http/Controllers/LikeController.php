@@ -38,9 +38,9 @@ class LikeController extends Controller
 {
     // Validate the request data
     $validatedData = $request->validate([
-        'like' => 'required|boolean', // Ensures the value is 0 or 1
-        'post_id' => 'required|exists:posts,id', // Validates the post ID exists
-        'user_id' => 'required|exists:users,id', // Validates the user ID exists
+        'like' => 'required|boolean', 
+        'post_id' => 'required|exists:posts,id', 
+        'user_id' => 'required|exists:users,id', 
     ]);
 
     $likeValue = $validatedData['like'];
@@ -61,7 +61,7 @@ class LikeController extends Controller
             $like->user_id = $userId;
             $like->save();
 
-            return response()->json(['message' => 'Like added successfully.'], 201);
+            return response()->json(['message' => 'Like added successfully.','valid'=>1], 201);
         }
 
         return response()->json(['message' => 'You already liked this post.'], 200);
@@ -77,7 +77,7 @@ class LikeController extends Controller
         if ($like) {
             $like->delete();
 
-            return response()->json(['message' => 'Like removed successfully.'], 200);
+            return response()->json(['message' => 'Like removed successfully.','valid'=>0], 200);
         }
 
         return response()->json(['message' => 'Like not found.'], 404);
