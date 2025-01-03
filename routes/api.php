@@ -11,6 +11,11 @@ use App\Http\Controllers\PostController;
 use App\Http\Controllers\MusicController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\CommentsController;
+use App\Http\Controllers\SubCommentController;
+use App\Http\Controllers\SaveController;
+use App\Http\Controllers\FavouritsController;
+
+
 
 
 
@@ -31,3 +36,6 @@ Route::get('/displaypost',[PostController::class, 'show'])->name('displaypost');
 Route::resource('/test', MusicController::class);
 Route::resource('/likes', LikeController::class);
 Route::resource('/comments', CommentsController::class);
+Route::resource('/subComments', SubCommentController::class);
+Route::resource('/save', SaveController::class);
+Route::resource('/favourits', FavouritsController::class);

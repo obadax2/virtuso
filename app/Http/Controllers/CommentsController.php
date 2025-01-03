@@ -30,7 +30,7 @@ class CommentsController extends Controller
      */
 public function store(Request $request)
 {
-    
+
     $validatedData = $request->validate([
         'comment' => 'required|string|max:500',  // Ensure the comment is a string and not too long
         'post_id' => 'required|exists:posts,id', // Validate that the post exists
@@ -47,7 +47,7 @@ public function store(Request $request)
     $comment->comment = $commentText; // Set the comment text
     $comment->post_id = $postId; // Associate with the correct post
     $comment->users_id = $userId; // Associate with the correct user
-    $comment->likes = 1;
+    $comment->likes = 0;
 
     $comment->save(); // Save the comment to the database
 
