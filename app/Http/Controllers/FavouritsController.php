@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 
 
 use App\Models\Favourit;
+use App\Models\Post;
+use App\Models\User;
+
+
 class FavouritsController extends Controller
 {
     /**
@@ -61,10 +65,28 @@ class FavouritsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        //
+   public function show(string $id)
+{
+    // Get the user by id
+    $user = User::find($id);
+
+    // If the user doesn't exist, return an error message
+    if (!$user) {
+        return response()->json(['message' => 'User not found.'], 404);
     }
+
+    // Get all the posts that the user has marked as favourite
+    $favouritePosts = Post::whereHas('favourites', function ($query) use ($id) {
+        $query->where('user_id', $id); // Check if a favourite record exists with the user_id
+    })->get();
+
+    // Return the favourite posts
+    return response()->json([
+        'user_id' => $id,
+        'favourite_posts' => $favouritePosts
+    ], 200);
+}
+
 
     /**
      * Show the form for editing the specified resource.

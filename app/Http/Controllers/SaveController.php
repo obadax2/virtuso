@@ -4,6 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Save;
+use App\Models\User;
+use App\Models\Post;
+
 
 
 
@@ -62,10 +65,27 @@ class SaveController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        //
+   public function show(string $id)
+{
+
+    // Get the user by id
+    $user = User::find($id);
+    // If the user doesn't exist, return an error message
+    if (!$user) {
+        return response()->json(['message' => 'User not found.'], 404);
     }
+
+    // Get all the posts that the user has saved
+    $savedPosts = Post::whereHas('saves', function ($query) use ($id) {
+        $query->where('user_id', $id); // Check if a save record exists with the user_id
+    })->get();
+
+    // Return the saved posts
+    return response()->json([
+        'user_id' => $id,
+        'saved_posts' => $savedPosts
+    ], 200);
+}
 
     /**
      * Show the form for editing the specified resource.

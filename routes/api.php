@@ -39,3 +39,9 @@ Route::resource('/comments', CommentsController::class);
 Route::resource('/subComments', SubCommentController::class);
 Route::resource('/save', SaveController::class);
 Route::resource('/favourits', FavouritsController::class);
+Route::post('/comments/{id}/likes', [CommentsController::class, 'updateLikes'])->name('updateLikes');
+Route::post('/subComments/{id}/likes', [SubCommentController::class, 'updateLikes'])->name('updateLikesSub');
+
+
+
+

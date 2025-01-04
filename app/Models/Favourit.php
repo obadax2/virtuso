@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Favourit extends Model
 {
-         public function post()
+ public function post()
 {
     return $this->belongsTo(Post::class);
 }
