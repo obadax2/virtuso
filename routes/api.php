@@ -12,6 +12,11 @@ use App\Http\Controllers\MusicController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\FriendsController;
 use App\Http\Controllers\CommentsController;
+use App\Http\Controllers\SubCommentController;
+use App\Http\Controllers\SaveController;
+use App\Http\Controllers\FavouritsController;
+
+
 
 
 
@@ -37,4 +42,10 @@ Route::resource('/searchusers', FriendsController::class);
 Route::post('/sendFriendRequest',[FriendsController::class, 'create']);
 Route::get('/friendRequests', [FriendsController::class, 'show']);
 Route::post('/respondToFriendRequest', [FriendsController::class, 'update']);
-Route::get('/comments/{postId}', [CommentsController::class, 'show']);
+Route::resource('/subComments', SubCommentController::class);
+Route::resource('/save', SaveController::class);
+Route::resource('/favourits', FavouritsController::class);
+Route::post('/comments/{id}/likes', [CommentsController::class, 'updateLikes'])->name('updateLikes');
+Route::post('/subComments/{id}/likes', [SubCommentController::class, 'updateLikes'])->name('updateLikesSub');
+
+

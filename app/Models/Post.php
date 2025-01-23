@@ -15,4 +15,18 @@ class Post extends Model
 {
     return $this->hasMany(Like::class);
 }
+
+public function comments()
+{
+    return $this->hasMany(Comments::class);
+}
+
+public function saves()
+{
+    return $this->hasMany(Save::class);
+}
+public function favourites()
+{
+    return $this->hasMany(Favourit::class);
+}
 }

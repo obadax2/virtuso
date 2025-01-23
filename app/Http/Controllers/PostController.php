@@ -66,47 +66,61 @@ class PostController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request)
-    {
-        Log::info('DisplayPost request data: ', $request->all());
+   public function show(Request $request)
+{
+    Log::info('DisplayPost request data: ', $request->all());
 
+    $validatedData = $request->validate([
+        'userId' => 'required|integer|exists:users,id',
+    ]);
 
-        $validatedData = $request->validate([
-            'userId' => 'required|integer|exists:users,id',
+    try {
+        $user = User::findOrFail($validatedData['userId']);
+
+        // Fetch posts with user and comments relationships
+        $userPosts = Post::with(['user', 'comments', 'comments.subComments'])
+            ->where('user_id', $user->id)
+            ->withCount('likes') // Get count of likes
+            ->get();
+
+        Log::info('Fetched user posts:', $userPosts->toArray());
+
+        $formattedPosts = $userPosts->map(function ($post) {
+            return [
+                'id' => $post->id,
+                'name' => $post->user ? $post->user->name : 'Unknown User',
+                'image' => $post->photo ? url('storage/' . $post->photo) : null,
+                'audio' => $post->music ? url('storage/' . $post->music) : null,
+                'likes_count' => $post->likes_count, // Uses the likes count fetched earlier
+                'comments' => $post->comments->map(function ($comment) {
+                    return [
+                        'id' => $comment->id,
+                        'user_id' => $comment->users_id,
+                        'comment' => $comment->comment,
+                        'likes_comment'=>$comment->likes,
+                        'sub_comments' => $comment->subComments->map(function ($subComment) {
+                            return [
+                                'id' => $subComment->id,
+                                'user_id' => $subComment->users_id,
+                                'comment' => $subComment->sub_comment,
+                                'likes_subComment'=>$subComment->likes,
+                            ];
+                        }),
+                    ];
+                }),
+            ];
+        });
+
+        return response()->json([
+            'valid' => 1,
+            'posts' => $formattedPosts,
         ]);
-
-        try {
-
-            $user = User::findOrFail($validatedData['userId']);
-
-
-            $userPosts = Post::with('user')->where('user_id', $user->id)->get();
-
-
-            Log::info('Fetched user posts:', $userPosts->toArray());
-
-
-            $formattedPosts = $userPosts->map(function($post) {
-                return [
-                    'id' => $post->id,
-                    'name' => $post->user ? $post->user->name : 'Unknown User',
-
-                    'image' => $post->photo ? url('storage/' . $post->photo) : null,
-                    'audio' => $post->music ? url('storage/' . $post->music) : null,
-                ];
-            });
-
-
-            return response()->json([
-                'valid' => 1,
-                'posts' => $formattedPosts,
-            ]);
-
-        } catch (\Exception $e) {
-            Log::error('Error fetching posts: ', ['error' => $e->getMessage(), 'trace' => $e->getTrace()]);
-            return response()->json(['error' => 'Failed to fetch posts'], 500);
-        }
+    } catch (\Exception $e) {
+        Log::error('Error fetching posts: ', ['error' => $e->getMessage(), 'trace' => $e->getTrace()]);
+        return response()->json(['error' => 'Failed to fetch posts'], 500);
     }
+}
+
 
     /**
      * Show the form for editing the specified resource.

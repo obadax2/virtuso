@@ -4,11 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class SubComments extends Model
-{   
-    public function comment()
+class Favourit extends Model
 {
-    return $this->belongsTo(Comments::class);
+ public function post()
+{
+    return $this->belongsTo(Post::class);
 }
 
 public function user()

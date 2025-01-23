@@ -3,11 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Comments;
-use App\Models\Post;
+use App\Models\SubComments;
 
-
-class CommentsController extends Controller
+class SubCommentController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -28,54 +26,40 @@ class CommentsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-public function store(Request $request)
-{
-    \Log::info('Incoming request data:', $request->all());
+    public function store(Request $request)
+    {
+        // Validate the incoming request
     $validatedData = $request->validate([
-        'comment' => 'required|string|max:500',  
-        'post_id' => 'required|exists:posts,id', 
-        'user_id' => 'required|exists:users,id', // Validate that the user exists
+        'sub_comment' => 'required|string|max:500',  // Ensure the sub-comment is a string and not too long
+        'comment_id' => 'required|exists:comments,id', // Validate that the comment exists
+        'user_id' => 'required|exists:users,id',      // Validate that the user exists
     ]);
 
-    $commentText = $validatedData['comment'];
-    $postId = $validatedData['post_id'];
+    $subCommentText = $validatedData['sub_comment'];
+    $commentId = $validatedData['comment_id'];
     $userId = $validatedData['user_id'];
 
-    // Create a new Comment instance and save it to the database
-    $comment = new Comments();
+    // Create a new SubComment instance and save it to the database
+    $subComment = new SubComments();
 
-    $comment->comment = $commentText; // Set the comment text
-    $comment->post_id = $postId; // Associate with the correct post
-    $comment->users_id = $userId; // Associate with the correct user
-    $comment->likes = 0;
+    $subComment->sub_comment = $subCommentText; // Set the sub-comment text
+    $subComment->comment_id = $commentId;       // Associate with the correct comment
+    $subComment->users_id = $userId;            // Associate with the correct user
+    $subComment->likes = 0;                     // Default likes to 0
 
-    $comment->save(); // Save the comment to the database
+    $subComment->save(); // Save the sub-comment to the database
 
     // Return a success message
-    return response()->json(['message' => 'Comment added successfully.','valid'=>1], 201);
-}
-
+    return response()->json(['message' => 'Sub-comment added successfully.', 'valid' => 1], 201);
+    }
 
     /**
      * Display the specified resource.
      */
-   public function show($postId)
-{
-    $comments = Comments::where('post_id', $postId)
-    ->with('user') 
-    ->get()
-    ->map(function ($comment) {
-        return [
-            'id' => $comment->id,
-            'comment' => $comment->comment, 
-            'username' => $comment->user->name, 
-        ];
-    });
-
-return response()->json([
-    'comments' => $comments,
-]);
-}
+    public function show(string $id)
+    {
+        //
+    }
 
     /**
      * Show the form for editing the specified resource.
@@ -88,43 +72,42 @@ return response()->json([
     /**
      * Update the specified resource in storage.
      */
-   public function update(Request $request, string $id)
+    public function update(Request $request, string $id)
 {
     // Validate the incoming request
     $validatedData = $request->validate([
-        'comment' => 'required|string|max:255', // Validate the comment content
+        'SubComment' => 'required|string|max:255', // Validate the comment content
         'user_id' => 'required|integer',       // Ensure the user_id is provided
     ]);
 
     // Find the comment by ID
-    $comment = Comments::find($id);
+    $subComment = SubComments::find($id);
 
     // If the comment doesn't exist, return an error
-    if (!$comment) {
+    if (!$subComment) {
         return response()->json(['message' => 'Comment not found.'], 404);
     }
 
     // Check if the user ID matches the comment's user_id
-    if ($comment->users_id != $validatedData['user_id']) {
+    if ($subComment->users_id != $validatedData['user_id']) {
         return response()->json(['message' => 'You are not authorized to update this comment.'], 403);
     }
 
     // Update the comment content
-    $comment->comment = $validatedData['comment'];
-    $comment->save();
+    $subComment->sub_comment = $validatedData['SubComment'];
+    $subComment->save();
 
     // Return the updated comment
     return response()->json([
-        'message' => 'Comment updated successfully.',
-        'comment' => $comment,
+        'message' => 'SubComment updated successfully.',
+        'SubComment' => $subComment,
     ], 200);
 }
-
 
     /**
      * Remove the specified resource from storage.
      */
-   public function destroy(Request $request, string $id)
+public function destroy(Request $request, string $id)
 {
     // Validate the incoming request to ensure user_id is present
     $validatedData = $request->validate([
@@ -132,29 +115,26 @@ return response()->json([
     ]);
 
     // Find the comment by ID
-    $comment = Comments::find($id);
+    $subComment = SubComments::find($id);
 
     // If the comment doesn't exist, return an error
-    if (!$comment) {
+    if (!$subComment) {
         return response()->json(['message' => 'Comment not found.'], 404);
     }
 
     // Check if the user owns the comment
-    if ($comment->users_id !== $validatedData['user_id']) {
+    if ($subComment->users_id !== $validatedData['user_id']) {
         return response()->json(['message' => 'You are not authorized to delete this comment.'], 403);
     }
 
     // Delete the comment
-    $comment->delete();
+    $subComment->delete();
 
     // Return a success response
     return response()->json(['message' => 'Comment deleted successfully.'], 200);
 }
 
-
-
-
-public function updateLikes(Request $request, $id)
+    public function updateLikes(Request $request, $id)
 {
 
     // Validate the incoming request
@@ -163,28 +143,25 @@ public function updateLikes(Request $request, $id)
     ]);
 
     // Find the comment by ID
-    $comment = Comments::find($id);
+    $SubComment = SubComments::find($id);
 
     // If the comment doesn't exist, return an error
-    if (!$comment) {
+    if (!$SubComment) {
         return response()->json(['message' => 'Comment not found.'], 404);
     }
 
     // Update the like count based on the request
     if ($validatedData['like'] == 1) {
-        $comment->increment('likes'); // Increment the likes column
+        $SubComment->increment('likes'); // Increment the likes column
     } else {
-        $comment->decrement('likes'); // Decrement the likes column
+        $SubComment->decrement('likes'); // Decrement the likes column
     }
 
     // Return the updated comment with its likes count
     return response()->json([
         'message' => 'Comment likes updated successfully.',
-        'comment_id' => $comment->id,
-        'likes' => $comment->likes,
+        'subComment_id' => $SubComment->id,
+        'likes' => $SubComment->likes,
     ], 200);
 }
-
-
-
 }
