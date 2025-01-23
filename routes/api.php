@@ -10,6 +10,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\MusicController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\FriendsController;
 use App\Http\Controllers\CommentsController;
 
 
@@ -29,5 +30,11 @@ Route::put('/updatepassword',[UserController::class,'updatepassword']);
 Route::post('/createpost', [PostController::class, 'store'])->name('createpost');
 Route::get('/displaypost',[PostController::class, 'show'])->name('displaypost');
 Route::resource('/test', MusicController::class);
+Route::get('/likes/{postId}/{userId}', [LikeController::class, 'getLikes']);
 Route::resource('/likes', LikeController::class);
 Route::resource('/comments', CommentsController::class);
+Route::resource('/searchusers', FriendsController::class);
+Route::post('/sendFriendRequest',[FriendsController::class, 'create']);
+Route::get('/friendRequests', [FriendsController::class, 'show']);
+Route::post('/respondToFriendRequest', [FriendsController::class, 'update']);
+Route::get('/comments/{postId}', [CommentsController::class, 'show']);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Comments;
 use App\Models\Post;
+use App\Models\User;
 
 
 class CommentsController extends Controller
@@ -30,10 +31,10 @@ class CommentsController extends Controller
      */
 public function store(Request $request)
 {
-    
+    \Log::info('Incoming request data:', $request->all());
     $validatedData = $request->validate([
-        'comment' => 'required|string|max:500',  // Ensure the comment is a string and not too long
-        'post_id' => 'required|exists:posts,id', // Validate that the post exists
+        'comment' => 'required|string|max:500',  
+        'post_id' => 'required|exists:posts,id', 
         'user_id' => 'required|exists:users,id', // Validate that the user exists
     ]);
 
@@ -59,23 +60,22 @@ public function store(Request $request)
     /**
      * Display the specified resource.
      */
-   public function show(string $id)
+   public function show($postId)
 {
-    // Validate that the post exists (you can return a 404 if the post doesn't exist)
-    $post = Post::find(id: $id);
+    $comments = Comments::where('post_id', $postId)
+    ->with('user') 
+    ->get()
+    ->map(function ($comment) {
+        return [
+            'id' => $comment->id,
+            'comment' => $comment->comment, 
+            'username' => $comment->user->name, 
+        ];
+    });
 
-    if (!$post) {
-        return response()->json(['message' => 'Post not found.'], 404);
-    }
-
-    // Get all comments associated with the post
-    $comments = Comments::where('post_id', operator: $id)->get();
-
-    // Return the comments as a JSON response
-    return response()->json([
-        'post_id' => $id,
-        'comments' => $comments
-    ], status: 200);
+return response()->json([
+    'comments' => $comments,
+]);
 }
 
     /**

@@ -36,5 +36,19 @@ class User extends Authenticatable
 {
     return $this->hasMany(Like::class);
 }
+public function friendRequests()
+{
+    return $this->hasMany(Friends::class);
+}
+
+
+public function friendRequestsWithUser()
+{
+    return $this->hasMany(Friends::class)->with('user');
+}
+public function sentRequests(): HasMany
+{
+    return $this->hasMany(Friends::class, 'sender_id');
+}
 
 }

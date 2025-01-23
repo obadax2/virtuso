@@ -136,4 +136,16 @@ public function show(string $id)
     {
         //
     }
+    public function getLikes($postId, $userId)
+    {
+        $likesCount = Like::where('post_id', $postId)->count();
+    
+        
+        $isLiked = Like::where('post_id', $postId)->where('user_id', $userId)->exists();
+    
+        return response()->json([
+            'likesCount' => $likesCount,
+            'isLiked' => $isLiked, 
+        ], 200);
+    }
 }
